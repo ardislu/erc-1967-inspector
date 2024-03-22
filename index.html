@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="data:,">
+  <title>ERC-1967 Inspector</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: hsl(216deg 50% 93%);
+    }
+
+    header,
+    main {
+      display: flex;
+      justify-content: center;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      inline-size: min(720px, 100% - 16px);
+    }
+
+    label {
+      font-weight: 700;
+    }
+
+    input,
+    button {
+      font-size: 1rem;
+      padding: 8px;
+    }
+
+    button {
+      inline-size: fit-content;
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>ERC-1967 Inspector</h1>
+  </header>
+
+  <main>
+    <form>
+      <label for="contract">ERC-1967 Proxy</label>
+      <input id="contract" name="contract" placeholder="0xEe6A57eC80ea46401049E92587E52f5Ec1c24785" value="0xEe6A57eC80ea46401049E92587E52f5Ec1c24785" pattern="^0x[a-fA-F\d]{40}$" required>
+
+      <label for="rpc">JSON-RPC</label>
+      <input id="rpc" name="rpc" type="url" placeholder="https://eth.llamarpc.com" value="https://eth.llamarpc.com" required>
+
+      <button>Lookup</button>
+
+      <output name="output"></output>
+    </form>
+  </main>
+
+  <script type="module">
+    document.querySelector('form').addEventListener('submit', async e => {
+      e.preventDefault();
+      const contract = e.target.elements['contract'].value;
+      const rpc = e.target.elements['rpc'].value;
+      const output = e.target.elements['output'];
+
+      const slots = {
+        'Logic contract address': '0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc',
+        'Beacon contract address': '0xa3f0ad74e5423aebfd80d3ef4346578335a9a72aeaee59ff6cb3582b35133d50',
+        'Admin address': '0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103'
+      }
+      const payload = [];
+      for (const [key, value] of Object.entries(slots)) {
+        payload.push({
+          jsonrpc: '2.0',
+          id: key,
+          method: 'eth_getStorageAt',
+          params: [contract, value, 'latest']
+        });
+      }
+
+      const results = await fetch(rpc, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      }).then(r => r.json());
+
+      output.innerHTML = '';
+      for (const item of results) {
+        output.insertAdjacentHTML('beforeend', `<p>${item.id}: 0x${item.result.substring(26)}</p>`);
+      }
+    });
+  </script>
+</body>
+
+</html>
