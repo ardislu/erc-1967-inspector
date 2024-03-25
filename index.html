@@ -7,7 +7,12 @@
   <link rel="icon" href="data:,">
   <title>ERC-1967 Inspector</title>
   <style>
+    * {
+      margin: 0;
+    }
+
     body {
+      margin: 16px;
       font-family: sans-serif;
       background: hsl(216deg 50% 93%);
     }
@@ -16,15 +21,21 @@
     main {
       display: flex;
       justify-content: center;
+      align-items: center;
     }
 
+    header,
     form {
       display: flex;
       flex-direction: column;
       gap: 8px;
+    }
+
+    form {
       inline-size: min(720px, 100% - 16px);
     }
 
+    a,
     label {
       font-weight: 700;
     }
@@ -45,6 +56,7 @@
 <body>
   <header>
     <h1>ERC-1967 Inspector</h1>
+    <a href="https://github.com/ardislu/erc-1967-inspector">GitHub</a>
   </header>
 
   <main>
