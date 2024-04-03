@@ -69,7 +69,8 @@
 
       <button>Lookup</button>
 
-      <output name="output"></output>
+      <output name="slot-output"></output>
+      <output name="event-output"></output>
     </form>
   </main>
 
@@ -78,7 +79,8 @@
       e.preventDefault();
       const contract = e.target.elements['contract'].value;
       const rpc = e.target.elements['rpc'].value;
-      const output = e.target.elements['output'];
+      const slotOutput = e.target.elements['slot-output'];
+      const eventOutput = e.target.elements['event-output'];
 
       const slotPayload = [];
       const slots = {
@@ -115,7 +117,8 @@
         });
       }
 
-      output.innerHTML = '';
+      slotOutput.innerHTML = '';
+      eventOutput.innerHTML = '';
 
       // Storage slot lookup
       fetch(rpc, {
@@ -124,7 +127,7 @@
         body: JSON.stringify(slotPayload)
       })
         .then(r => r.json())
-        .then(r => r.forEach(i => { Number(i.result) === 0 || output.insertAdjacentHTML('beforeend', `<p>${i.id}: 0x${i.result.substring(26)}</p>`) }));
+        .then(r => r.forEach(i => { Number(i.result) === 0 || slotOutput.insertAdjacentHTML('beforeend', `<p>${i.id}: 0x${i.result.substring(26)}</p>`) }));
 
       // Event lookup
       fetch(rpc, {
@@ -140,10 +143,10 @@
             }
             for (const log of item.result) {
               if (log.data === '0x') { // Upgraded event (new address is indexed)
-                output.insertAdjacentHTML('beforeend', `<p>${item.id} (block ${Number(log.blockNumber)}): 0x${log.topics[1].substring(26)}</p>`);
+                eventOutput.insertAdjacentHTML('beforeend', `<p>${item.id} (block ${Number(log.blockNumber)}): 0x${log.topics[1].substring(26)}</p>`);
               }
               else { // Admin changed event (new address is not indexed)
-                output.insertAdjacentHTML('beforeend', `<p>${item.id} (block ${Number(log.blockNumber)}): 0x${log.data.slice(-40)}</p>`);
+                eventOutput.insertAdjacentHTML('beforeend', `<p>${item.id} (block ${Number(log.blockNumber)}): 0x${log.data.slice(-40)}</p>`);
               }
             }
           });
