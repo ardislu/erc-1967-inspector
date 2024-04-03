@@ -62,7 +62,7 @@
   <main>
     <form>
       <label for="contract">ERC-1967 Proxy</label>
-      <input id="contract" name="contract" placeholder="0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9" value="0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9" pattern="^0x[a-fA-F\d]{40}$" required>
+      <input id="contract" name="contract" placeholder="0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9" value="0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9" required>
 
       <label for="rpc">JSON-RPC</label>
       <input id="rpc" name="rpc" type="url" placeholder="https://eth.llamarpc.com" value="https://eth.llamarpc.com" required>
@@ -159,7 +159,7 @@
 
     document.querySelector('form').addEventListener('submit', e => {
       e.preventDefault();
-      const contract = e.target.elements['contract'].value;
+      const contract = e.target.elements['contract'].value.replaceAll(/\s/g, '');
       const rpc = e.target.elements['rpc'].value;
       const slotOutput = e.target.elements['slot-output'];
       const eventOutput = e.target.elements['event-output'];
