@@ -115,35 +115,39 @@
         });
       }
 
-      const results = (await Promise.all([
-        fetch(rpc, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(slotPayload)
-        }).then(r => r.json()),
-        fetch(rpc, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(eventPayload)
-        }).then(r => r.json())
-      ])).flat().filter(r => r?.result !== undefined);
-
       output.innerHTML = '';
-      for (const item of results) {
-        if (typeof item.result === 'string') { // Storage slot lookup
-          output.insertAdjacentHTML('beforeend', `<p>${item.id}: 0x${item.result.substring(26)}</p>`);
-        }
-        else { // Event lookup
-          for (const log of item.result) {
-            if (log.data === '0x') { // Upgraded event (new address is indexed)
-              output.insertAdjacentHTML('beforeend', `<p>${item.id} (block ${Number(log.blockNumber)}): 0x${log.topics[1].substring(26)}</p>`);
+
+      // Storage slot lookup
+      fetch(rpc, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(slotPayload)
+      })
+        .then(r => r.json())
+        .then(r => r.forEach(i => { Number(i.result) === 0 || output.insertAdjacentHTML('beforeend', `<p>${i.id}: 0x${i.result.substring(26)}</p>`) }));
+
+      // Event lookup
+      fetch(rpc, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(eventPayload)
+      })
+        .then(r => r.json())
+        .then(r => {
+          r.forEach(item => {
+            if (item?.result === undefined) {
+              return;
             }
-            else { // Admin changed event (new address is not indexed)
-              output.insertAdjacentHTML('beforeend', `<p>${item.id} (block ${Number(log.blockNumber)}): 0x${log.data.slice(-40)}</p>`);
+            for (const log of item.result) {
+              if (log.data === '0x') { // Upgraded event (new address is indexed)
+                output.insertAdjacentHTML('beforeend', `<p>${item.id} (block ${Number(log.blockNumber)}): 0x${log.topics[1].substring(26)}</p>`);
+              }
+              else { // Admin changed event (new address is not indexed)
+                output.insertAdjacentHTML('beforeend', `<p>${item.id} (block ${Number(log.blockNumber)}): 0x${log.data.slice(-40)}</p>`);
+              }
             }
-          }
-        }
-      }
+          });
+        });
     });
   </script>
 </body>
