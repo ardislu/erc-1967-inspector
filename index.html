@@ -83,7 +83,9 @@
         'Admin address': '0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103', // keccak256('eip1967.proxy.admin') - 1
         // ZeppelinOS (used in OpenZeppelin contracts v2 and below, predecessor to ERC-1967)
         'Implementation address (ZeppelinOS)': '0x7050c9e0f4ca769c69bd3a8ef740bc37934f8e2c036e5a723fd8ee048ed3f8c3', // keccak256('org.zeppelinos.proxy.implementation')
-        'Admin address (ZeppelinOS)': '0x10d6a54a4754c8869d6886b5f5d7fbfa5b4522237ea5c60d11bc4e7a1ff9390b' // keccak256('org.zeppelinos.proxy.admin')
+        'Admin address (ZeppelinOS)': '0x10d6a54a4754c8869d6886b5f5d7fbfa5b4522237ea5c60d11bc4e7a1ff9390b', // keccak256('org.zeppelinos.proxy.admin')
+        // StarkWare (https://github.com/starkware-libs/starkex-contracts/)
+        'Implementation address (StarkWare)': '0x177667240aeeea7e35eabe3a35e18306f336219e1386f7710a6bf8783f761b24' //  keccak256('StarkWare2019.implemntation-slot') [sic]
       }
 
       const slotPayload = [];
@@ -116,7 +118,10 @@
       const events = {
         'Upgraded(address)': '0xbc7cd75a20ee27fd9adebab32041f755214dbc6bffa90cc0225b39da2e5c2d3b',
         'BeaconUpgraded(address)': '0x1cf3b03a6cf19fa2baba4df148e9dcabedea7f8a5c07840e207e5c089be95d3e',
-        'AdminChanged(address,address)': '0x7e644d79422f17c01e4894b5f4f588d331ebfa28653d42ae832dc59e38c9798f'
+        'AdminChanged(address,address)': '0x7e644d79422f17c01e4894b5f4f588d331ebfa28653d42ae832dc59e38c9798f',
+        // StarkWare
+        'LogNewGovernorAccepted(address)': '0xcfb473e6c03f9a29ddaf990e736fa3de5188a0bd85d684f5b6e164ebfbfff5d2',
+        'LogRemovedGovernor(address)': '0xd75f94825e770b8b512be8e74759e252ad00e102e38f50cce2f7c6f868a29599'
       }
 
       const eventPayload = [];
