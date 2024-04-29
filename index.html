@@ -90,7 +90,10 @@
         'Implementation address (ZeppelinOS)': '0x7050c9e0f4ca769c69bd3a8ef740bc37934f8e2c036e5a723fd8ee048ed3f8c3', // keccak256('org.zeppelinos.proxy.implementation')
         'Admin address (ZeppelinOS)': '0x10d6a54a4754c8869d6886b5f5d7fbfa5b4522237ea5c60d11bc4e7a1ff9390b', // keccak256('org.zeppelinos.proxy.admin')
         // StarkWare (https://github.com/starkware-libs/starkex-contracts/)
-        'Implementation address (StarkWare)': '0x177667240aeeea7e35eabe3a35e18306f336219e1386f7710a6bf8783f761b24' //  keccak256('StarkWare2019.implemntation-slot') [sic]
+        'Implementation address (StarkWare)': '0x177667240aeeea7e35eabe3a35e18306f336219e1386f7710a6bf8783f761b24', //  keccak256('StarkWare2019.implemntation-slot') [sic]
+        // Polygon
+        'Implementation address (Polygon)': '0xbaab7dbf64751104133af04abc7d9979f0fda3b059a322a8333f533d3f32bf7f', // keccak256('matic.network.proxy.implementation')
+        'Admin address (Polygon)': '0x44f6e2e8884cba1236b7f22f351fa5d88b17292b7e0225ca47e5ecdf6055cdd6' // keccak256('matic.network.proxy.owner')
       }
 
       const slotPayload = [];
@@ -126,7 +129,10 @@
         'AdminChanged(address,address)': '0x7e644d79422f17c01e4894b5f4f588d331ebfa28653d42ae832dc59e38c9798f',
         // StarkWare
         'LogNewGovernorAccepted(address)': '0xcfb473e6c03f9a29ddaf990e736fa3de5188a0bd85d684f5b6e164ebfbfff5d2',
-        'LogRemovedGovernor(address)': '0xd75f94825e770b8b512be8e74759e252ad00e102e38f50cce2f7c6f868a29599'
+        'LogRemovedGovernor(address)': '0xd75f94825e770b8b512be8e74759e252ad00e102e38f50cce2f7c6f868a29599',
+        // Polygon
+        'ProxyUpdated(address,address)': '0xd32d24edea94f55e932d9a008afc425a8561462d1b1f57bc6e508e9a6b9509e1',
+        'ProxyOwnerUpdate(address,address)': '0xdbe5fd65bcdbae152f24ab660ea68e72b4d4705b57b16e0caae994e214680ee2'
       }
 
       const eventPayload = [];
