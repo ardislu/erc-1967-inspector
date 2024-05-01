@@ -80,6 +80,8 @@
   </main>
 
   <script type="module">
+    let controller;
+
     async function slotLookup(rpc, contract) {
       const slots = {
         // ERC-1967
@@ -109,7 +111,11 @@
       const response = await fetch(rpc, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(slotPayload)
+        body: JSON.stringify(slotPayload),
+        signal: AbortSignal.any([
+          AbortSignal.timeout(30000),
+          controller.signal
+        ])
       }).then(r => r.json());
 
       const output = [];
@@ -153,7 +159,11 @@
       const response = await fetch(rpc, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(eventPayload)
+        body: JSON.stringify(eventPayload),
+        signal: AbortSignal.any([
+          AbortSignal.timeout(30000),
+          controller.signal
+        ])
       }).then(r => r.json());
 
       const output = [];
@@ -183,6 +193,8 @@
       slotOutput.innerHTML = '';
       eventOutput.innerHTML = '';
 
+      controller?.abort(); // Abort any previous in-flight requests
+      controller = new AbortController();
       slotLookup(rpc, contract).then(arr => arr.forEach(i => slotOutput.insertAdjacentHTML('beforeend', `<p>${i.id}: ${i.data}</p>`)));
       eventLookup(rpc, contract).then(arr => arr.forEach(i => eventOutput.insertAdjacentHTML('beforeend', `<p>${i.id} (block ${i.blockNumber}): ${i.data}</p>`)));
     });
