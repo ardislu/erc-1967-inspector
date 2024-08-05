@@ -183,7 +183,7 @@
       return output;
     };
 
-    document.querySelector('form').addEventListener('submit', e => {
+    document.querySelector('form').addEventListener('submit', async e => {
       e.preventDefault();
       const contract = e.target.elements['contract'].value.replaceAll(/\s/g, '');
       const rpc = e.target.elements['rpc'].value;
@@ -195,8 +195,20 @@
 
       controller?.abort(); // Abort any previous in-flight requests
       controller = new AbortController();
-      slotLookup(rpc, contract).then(arr => arr.forEach(i => slotOutput.insertAdjacentHTML('beforeend', `<p>${i.id}: ${i.data}</p>`)));
-      eventLookup(rpc, contract).then(arr => arr.forEach(i => eventOutput.insertAdjacentHTML('beforeend', `<p>${i.id} (block ${i.blockNumber}): ${i.data}</p>`)));
+      const slots = await slotLookup(rpc, contract);
+      if (slots.length > 0) {
+        slots.forEach(i => slotOutput.insertAdjacentHTML('beforeend', `<p>${i.id}: ${i.data}</p>`));
+      }
+      else {
+        slotOutput.insertAdjacentHTML('beforeend', '<p>No addresses found.</p>');
+      }
+      const events = await eventLookup(rpc, contract);
+      if (events.length > 0) {
+        events.forEach(i => eventOutput.insertAdjacentHTML('beforeend', `<p>${i.id} (block ${i.blockNumber}): ${i.data}</p>`));
+      }
+      else {
+        eventOutput.insertAdjacentHTML('beforeend', '<p>No events found.</p>');
+      }
     });
   </script>
 </body>
