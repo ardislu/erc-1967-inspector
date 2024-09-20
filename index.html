@@ -120,7 +120,7 @@
   <script type="module">
     let controller;
 
-    async function slotLookup(rpc, contract) {
+    async function slotLookup(rpc, contract, output = []) {
       const slots = {
         // ERC-1967
         'Implementation address': '0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc', // keccak256('eip1967.proxy.implementation') - 1
@@ -134,7 +134,11 @@
         'Implementation address (StarkWare)': '0x177667240aeeea7e35eabe3a35e18306f336219e1386f7710a6bf8783f761b24', //  keccak256('StarkWare2019.implemntation-slot') [sic]
         // Polygon
         'Implementation address (Polygon)': '0xbaab7dbf64751104133af04abc7d9979f0fda3b059a322a8333f533d3f32bf7f', // keccak256('matic.network.proxy.implementation')
-        'Admin address (Polygon)': '0x44f6e2e8884cba1236b7f22f351fa5d88b17292b7e0225ca47e5ecdf6055cdd6' // keccak256('matic.network.proxy.owner')
+        'Admin address (Polygon)': '0x44f6e2e8884cba1236b7f22f351fa5d88b17292b7e0225ca47e5ecdf6055cdd6', // keccak256('matic.network.proxy.owner')
+        // WTGXX
+        'Beacon address (WTGXX)': '0xe776daafc4820f23714ae13a96bd4aa162bffacfe02911a8027c0de390f83155', // keccak256('proxy.beacon')
+        'Implementation address (WTGXX)': '0x715bb696250bdbc4c0468d3dcdccac99682c4f7bf45dbef1cfe197539ffe3a45', // keccak256('beacon.implementation')
+        'Initialization owner address (WTGXX)': '0x8e876d3d0a9353aed97eec92a2216994db039809a1460215a0dc869dd618259d' // keccak256('proxy.initializationOwnerAddress')
       }
 
       const slotPayload = [];
@@ -157,17 +161,26 @@
         ])
       }).then(r => r.json());
 
-      const output = [];
+      let recurseAddress = null;
       for (const item of response) {
         if (item?.result === undefined || Number(item.result) === 0) {
           continue;
         }
         output.push({ id: item.id, data: `0x${item.result.substring(26)}` });
+        if (item.id.substring(0, 6) === 'Beacon') {
+          recurseAddress = `0x${item.result.substring(26)}`;
+        }
       }
-      return output;
+
+      if (recurseAddress !== null) {
+        return slotLookup(rpc, recurseAddress, output);
+      }
+      else {
+        return output;
+      }
     }
 
-    async function eventLookup(rpc, contract) {
+    async function eventLookup(rpc, contract, output = []) {
       const events = {
         'Upgraded(address)': '0xbc7cd75a20ee27fd9adebab32041f755214dbc6bffa90cc0225b39da2e5c2d3b',
         'BeaconUpgraded(address)': '0x1cf3b03a6cf19fa2baba4df148e9dcabedea7f8a5c07840e207e5c089be95d3e',
@@ -179,7 +192,9 @@
         'LogRemovedGovernor(address)': '0xd75f94825e770b8b512be8e74759e252ad00e102e38f50cce2f7c6f868a29599',
         // Polygon
         'ProxyUpdated(address,address)': '0xd32d24edea94f55e932d9a008afc425a8561462d1b1f57bc6e508e9a6b9509e1',
-        'ProxyOwnerUpdate(address,address)': '0xdbe5fd65bcdbae152f24ab660ea68e72b4d4705b57b16e0caae994e214680ee2'
+        'ProxyOwnerUpdate(address,address)': '0xdbe5fd65bcdbae152f24ab660ea68e72b4d4705b57b16e0caae994e214680ee2',
+        // WTGXX
+        'BeaconChanged(address,address)': '0xbe0ef9e6d5d3d5709366e217891363222543e107a017b4fd3191d99ea69ec66e'
       }
 
       const eventPayload = [];
@@ -207,21 +222,37 @@
         ])
       }).then(r => r.json());
 
-      const output = [];
+      let recurseAddress = null;
       for (const item of response) {
         if (item?.result === undefined) {
           continue;
         }
         for (const log of item.result) {
           if (log.data === '0x') { // Upgraded event (new address is indexed)
-            output.push({ id: item.id, blockNumber: Number(log.blockNumber), data: `0x${log.topics[1].substring(26)}` });
+            if (item.id === 'BeaconChanged(address,address)') {
+              output.push({ id: item.id, blockNumber: Number(log.blockNumber), data: `0x${log.topics[2].substring(26)}` });
+              recurseAddress = `0x${log.topics[2].substring(26)}`;
+            }
+            else if (item.id.substring(0, 6) === 'Beacon') {
+              output.push({ id: item.id, blockNumber: Number(log.blockNumber), data: `0x${log.topics[1].substring(26)}` });
+              recurseAddress = `0x${log.topics[1].substring(26)}`;
+            }
+            else {
+              output.push({ id: item.id, blockNumber: Number(log.blockNumber), data: `0x${log.topics[1].substring(26)}` });
+            }
           }
           else { // Admin changed event (new address is not indexed)
             output.push({ id: item.id, blockNumber: Number(log.blockNumber), data: `0x${log.data.slice(-40)}` });
           }
         }
       }
-      return output;
+
+      if (recurseAddress !== null) {
+        return eventLookup(rpc, recurseAddress, output);
+      }
+      else {
+        return output;
+      }
     };
 
     document.querySelector('form').addEventListener('submit', async e => {
