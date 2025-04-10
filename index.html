@@ -162,7 +162,7 @@
       }).then(r => r.json());
 
       let recurseAddress = null;
-      for (const item of response) {
+      for (const item of [response].flat()) {
         if (item?.result === undefined || Number(item.result) === 0) {
           continue;
         }
@@ -223,7 +223,7 @@
       }).then(r => r.json());
 
       let recurseAddress = null;
-      for (const item of response) {
+      for (const item of [response].flat()) {
         if (item?.result === undefined) {
           continue;
         }
